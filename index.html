@@ -230,6 +230,67 @@
       color: #666;
       text-align: center;
     }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, rgba(0,0,0,0.4), rgba(0,0,0,0.7));
+      z-index: 2;
+    }
+
+    .overlay-inner {
+      background: #ffffffee;
+      border-radius: 20px;
+      padding: 20px 18px 18px;
+      width: min(360px, 88vw);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.4);
+      text-align: center;
+      transform: scale(0.9);
+      animation: overlayPop 0.25s ease-out forwards;
+    }
+
+    .overlay-santa {
+      font-size: 2.6rem;
+      margin-bottom: 8px;
+    }
+
+    .overlay-text p {
+      margin: 4px 0;
+    }
+
+    #overlay-day {
+      font-weight: 600;
+    }
+
+    #overlay-amount {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    #overlay-confirm {
+      margin-top: 12px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: linear-gradient(135deg,#0bab64,#3bb78f);
+      color:#fff;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+    }
+
+    #overlay-confirm:active {
+      transform: translateY(1px);
+    }
+
+    @keyframes overlayPop {
+      from { opacity:0; transform: scale(0.9); }
+      to { opacity:1; transform: scale(1); }
+    }
   </style>
 </head>
 <body>
@@ -262,6 +323,18 @@
     <button id="reset-btn" type="button" style="border:none;background:none;color:#c00;font-size:0.75rem;text-decoration:underline;cursor:pointer;">
       Kalender zurücksetzen (Test)
     </button>
+  </div>
+<\/div>
+
+<div id="door-overlay" class="overlay" aria-hidden="true">
+  <div class="overlay-inner">
+    <div class="overlay-santa">🎅🛷</div>
+    <div class="overlay-text">
+      <p id="overlay-title">Heute ist dein Advents-Überraschungstag</p>
+      <p id="overlay-day"></p>
+      <p id="overlay-amount"></p>
+    </div>
+    <button id="overlay-confirm" type="button">Zum Kalender</button>
   </div>
 </div>
 
@@ -488,6 +561,27 @@
    * UI
    ******************************************************/
 
+  const overlay = document.getElementById("door-overlay");
+  const overlayDay = document.getElementById("overlay-day");
+  const overlayAmount = document.getElementById("overlay-amount");
+  const overlayConfirm = document.getElementById("overlay-confirm");
+
+  function showDoorOverlay(dayNumber, amountCents, onConfirm) {
+    if (!overlay || !overlayDay || !overlayAmount || !overlayConfirm) {
+      onConfirm();
+      return;
+    }
+    overlayDay.textContent = "Türchen " + dayNumber;
+    overlayAmount.textContent = formatEuro(amountCents);
+    overlayConfirm.onclick = () => {
+      overlay.style.display = "none";
+      overlay.setAttribute("aria-hidden","true");
+      onConfirm();
+    };
+    overlay.style.display = "flex";
+    overlay.setAttribute("aria-hidden","false");
+  }
+
   function buildCalendar(calConfig, data) {
     const grid = document.getElementById("calendar-grid");
     grid.innerHTML = "";
@@ -551,11 +645,17 @@
           alert("Dieses Türchen ist noch verschlossen.");
           return;
         }
-        if (!data.opened[i]) {
+
+        if (data.opened[i]) {
+          // Bereits geöffnet – nichts neu anzeigen
+          return;
+        }
+
+        showDoorOverlay(dayNumber, amountCents, () => {
           data.opened[i] = true;
           saveOpened(data.keys, data.opened);
-        }
-        door.classList.add("door-open");
+          door.classList.add("door-open");
+        });
       });
     }
   }
