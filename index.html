@@ -389,11 +389,6 @@
   <div class="date-info" id="date-info"></div>
   <div class="date-info" id="version-info"></div>
   <div class="date-info" id="admin-info"></div>
-  <div class="date-info">
-    <button id="reset-btn" type="button" style="border:none;background:none;color:#c00;font-size:0.75rem;text-decoration:underline;cursor:pointer;">
-      RESET DIESES KALENDERS
-    </button>
-  </div>
 </div>
 
 <!-- Intro-Overlay: Weihnachtswunderland -->
@@ -426,7 +421,7 @@
    * KONFIGURATION
    ******************************************************/
 
-  const APP_VERSION = "Adventskalender v2.4 – Admin & Test Edition";
+  const APP_VERSION = "Adventskalender v2.5 – Admin & Test Edition";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
@@ -864,16 +859,6 @@
       location.reload();
     });
   }
-  // RESET BUTTON LOGIC
-  function manualResetCalendar(keys) {
-    try {
-      localStorage.removeItem(keys.amounts);
-      localStorage.removeItem(keys.opened);
-      alert("Kalender zurückgesetzt. Bitte Seite neu laden.");
-    } catch (e) {
-      alert("Reset fehlgeschlagen.");
-    }
-  }
   (function init() {
     colorizeOverlayTitle();
 
@@ -938,15 +923,6 @@
     }
 
     const calConfig = CALENDARS[kal];
-    const resetBtn = document.getElementById("reset-btn");
-    if (resetBtn) {
-      resetBtn.onclick = () => {
-        if (confirm("Willst du wirklich NUR diesen Kalender zurücksetzen?")) {
-          const keys = storageKeysForCalendar(kal);
-          manualResetCalendar(keys);
-        }
-      };
-    }
 
     document.body.classList.add("theme-" + calConfig.id);
 
