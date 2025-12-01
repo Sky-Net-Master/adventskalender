@@ -24,6 +24,21 @@
       background: radial-gradient(circle at top, #fdf6e3, #e0f0ff);
     }
 
+    body.theme-1 {
+      /* Gloria: warm rot-goldener Weihnachtsverlauf */
+      background: radial-gradient(circle at top, #ffe6e6, #ffb347);
+    }
+
+    body.theme-2 {
+      /* Larissa: grünlicher Tannenwald-Verlauf */
+      background: radial-gradient(circle at top, #e6ffef, #7adf82);
+    }
+
+    body.theme-3 {
+      /* Vanessa: kühler blau-violetter Winterhimmel */
+      background: radial-gradient(circle at top, #e6f0ff, #8fa9ff);
+    }
+
     .app {
       width: min(900px, 96vw);
       background: #ffffffee;
@@ -396,7 +411,7 @@
       String(month + 1).padStart(2, "0") + "." +
       year;
 
-    subtitle.textContent = ""; // aktuell keine Hinweise / Gesamtbeträge etc.
+    subtitle.textContent = "Für " + calConfig.name + " – dein persönlicher Adventskalender.";
 
     for (let i = 0; i < DAYS_TOTAL; i++) {
       const dayNumber = i + 1;
@@ -451,10 +466,45 @@
 
   (function init() {
     let kal = getQueryParam("kal");
+
+    const title = document.getElementById("calendar-title");
+    const subtitle = document.getElementById("calendar-subtitle");
+    const dateInfo = document.getElementById("date-info");
+    const grid = document.getElementById("calendar-grid");
+
+    // Falls kein oder ein ungültiger Kalender-Parameter übergeben wurde,
+    // Seite als gesperrt / Landing kennzeichnen.
     if (!kal || !CALENDARS[kal]) {
-      kal = "1"; // Standard: Gloria
+      const { year, month, day } = getTodayInfo();
+
+      if (title) {
+        title.textContent = "Adventskalender";
+      }
+      if (subtitle) {
+        subtitle.textContent = "Diese Seite ist gesperrt. Bitte nutze deinen persönlichen Link für Gloria, Larissa oder Vanessa.";
+      }
+      if (dateInfo) {
+        dateInfo.textContent =
+          "Aufruf am " +
+          String(day).padStart(2, "0") + "." +
+          String(month + 1).padStart(2, "0") + "." +
+          year;
+      }
+      if (grid) {
+        grid.innerHTML = "";
+      }
+      const resetBtn = document.getElementById("reset-btn");
+      if (resetBtn) {
+        resetBtn.style.display = "none";
+      }
+      return;
     }
+
     const calConfig = CALENDARS[kal];
+
+    // Kalender-spezifisches Theme setzen
+    document.body.classList.add("theme-" + calConfig.id);
+
     const data = loadOrCreateData(calConfig);
     buildCalendar(calConfig, data);
 
