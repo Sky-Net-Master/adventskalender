@@ -157,15 +157,8 @@
     }
 
     .door-locked {
-      background: linear-gradient(135deg, #777, #444);
-      cursor: not-allowed;
-      opacity: 0.8;
-    }
-
-    .door-locked .door-number::after {
-      content: "🔒";
-      display: block;
-      font-size: 0.85rem;
+      /* optisch wie eine normale, noch geschlossene Tür */
+      cursor: not-allowed; /* weiterhin nicht klickbar, wenn in der Zukunft */
     }
 
     .door:hover:not(.door-locked) {
