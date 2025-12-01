@@ -25,22 +25,31 @@
     }
 
     body.theme-1 {
-      /* Gloria: warm rot-goldener Weihnachtsverlauf */
-      background: radial-gradient(circle at top, #ffe6e6, #ffb347);
+      /* Gloria: warm rot-goldener Weihnachtsverlauf mit Lichtpunkten */
+      background:
+        radial-gradient(circle at 10% 15%, rgba(255,255,255,0.55) 0, transparent 55%),
+        radial-gradient(circle at 80% 0%, rgba(255,255,255,0.45) 0, transparent 60%),
+        radial-gradient(circle at top, #ffe6e6, #ffb347);
     }
 
     body.theme-2 {
-      /* Larissa: grünlicher Tannenwald-Verlauf */
-      background: radial-gradient(circle at top, #e6ffef, #7adf82);
+      /* Larissa: grünlicher Tannenwald-Verlauf mit Lichtpunkten */
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,0.5) 0, transparent 55%),
+        radial-gradient(circle at 85% 10%, rgba(255,255,255,0.4) 0, transparent 60%),
+        radial-gradient(circle at top, #e6ffef, #7adf82);
     }
 
     body.theme-3 {
-      /* Vanessa: kühler blau-violetter Winterhimmel */
-      background: radial-gradient(circle at top, #e6f0ff, #8fa9ff);
+      /* Vanessa: kühler blau-violetter Winterhimmel mit Lichtpunkten */
+      background:
+        radial-gradient(circle at 10% 15%, rgba(255,255,255,0.6) 0, transparent 55%),
+        radial-gradient(circle at 80% 5%, rgba(255,255,255,0.45) 0, transparent 60%),
+        radial-gradient(circle at top, #e6f0ff, #8fa9ff);
     }
 
     .app {
-      width: min(900px, 96vw);
+      width: min(820px, 92vw);
       background: #ffffffee;
       border-radius: 18px;
       padding: 18px 18px 20px;
@@ -79,11 +88,18 @@
       .grid {
         grid-template-columns: repeat(3, 1fr);
       }
+      .app {
+        width: 90vw;
+        padding: 14px 12px 16px;
+      }
+      .door {
+        padding-top: 80%;
+      }
     }
 
     .door {
       position: relative;
-      padding-top: 100%; /* Quadrat */
+      padding-top: 90%; /* etwas flacher als Quadrat, mehr Platz für Hintergrund */
       border-radius: 14px;
       overflow: hidden;
       cursor: pointer;
@@ -142,6 +158,21 @@
     .door:hover:not(.door-locked) {
       transform: translateY(-1px);
       box-shadow: 0 10px 18px rgba(0,0,0,0.2);
+    }
+
+    .door-today:not(.door-open):not(.door-locked) {
+      animation: doorPulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes doorPulse {
+      0% {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+      }
+      100% {
+        transform: translateY(-2px) scale(1.03);
+        box-shadow: 0 12px 22px rgba(0,0,0,0.3);
+      }
     }
 
     .date-info {
@@ -413,6 +444,8 @@
 
     subtitle.textContent = "Für " + calConfig.name + " – dein persönlicher Adventskalender.";
 
+    const today = { year, month, day };
+
     for (let i = 0; i < DAYS_TOTAL; i++) {
       const dayNumber = i + 1;
       const amountCents = data.amounts[i];
@@ -427,6 +460,10 @@
       }
       if (isOpened) {
         door.classList.add("door-open");
+      }
+      // heutiges Türchen leicht hervorheben (Animation), falls geöffnet werden darf
+      if (today.month === 11 && today.day === dayNumber && unlocked && !isOpened) {
+        door.classList.add("door-today");
       }
 
       const content = document.createElement("div");
