@@ -370,6 +370,10 @@
 </head>
 <body>
 
+<button id="reload-btn" style="position:fixed; top:10px; left:10px; z-index:5; padding:6px 10px; border:none; border-radius:8px; background:rgba(255,255,255,0.6); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); font-size:0.8rem; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.2);">
+  🔄 Neu laden
+</button>
+
 <div class="snow-layer"></div>
 
 <div class="app">
@@ -383,11 +387,6 @@
   </div>
 
   <div class="date-info" id="date-info"></div>
-  <div class="date-info">
-    <button id="reset-btn" type="button" style="border:none;background:none;color:#c00;font-size:0.75rem;text-decoration:underline;cursor:pointer;">
-      Kalender zurücksetzen (Test)
-    </button>
-  </div>
   <div class="date-info" id="version-info"></div>
 </div>
 
@@ -421,7 +420,7 @@
    * KONFIGURATION
    ******************************************************/
 
-  const APP_VERSION = "Adventskalender v2.1 – Background Edition";
+  const APP_VERSION = "Adventskalender v2.3 – Background Edition";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
@@ -443,6 +442,13 @@
     "3": {
       id: "3",
       name: "Vanessa",
+      totalEuro: 30.0,
+      day6RangeEuro: { min: 3.0, max: 4.5 },
+      day24RangeEuro: { min: 7.0, max: 10.0 }
+    },
+    "4": {
+      id: "4",
+      name: "Hugo",
       totalEuro: 30.0,
       day6RangeEuro: { min: 3.0, max: 4.5 },
       day24RangeEuro: { min: 7.0, max: 10.0 }
@@ -810,6 +816,12 @@
    * INIT
    ******************************************************/
 
+  const reloadBtn = document.getElementById("reload-btn");
+  if (reloadBtn) {
+    reloadBtn.addEventListener("click", () => {
+      location.reload();
+    });
+  }
   (function init() {
     colorizeOverlayTitle();
 
@@ -846,10 +858,6 @@
       if (grid) {
         grid.innerHTML = "";
       }
-      const resetBtn = document.getElementById("reset-btn");
-      if (resetBtn) {
-        resetBtn.style.display = "none";
-      }
       return;
     }
 
@@ -862,22 +870,6 @@
 
     showIntroIfNeeded(calConfig, data);
 
-    const resetBtn = document.getElementById("reset-btn");
-    if (resetBtn) {
-      resetBtn.addEventListener("click", () => {
-        if (!confirm("Kalender für diesen Namen wirklich zurücksetzen?\nAlle Türchen werden geschlossen und Beträge neu gewürfelt.")) {
-          return;
-        }
-        const keys = data.keys;
-        try {
-          localStorage.removeItem(keys.amounts);
-          localStorage.removeItem(keys.opened);
-        } catch (e) {
-          console.warn("Konnte localStorage nicht löschen:", e);
-        }
-        location.reload();
-      });
-    }
   })();
 </script>
 </body>
