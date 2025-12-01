@@ -21,170 +21,24 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: radial-gradient(circle at top, #fdf6e3, #e0f0ff);
+      /* Hintergrundbild: bitte background.png ins Repo legen */
+      background: #041624 url("background.png") center top / cover no-repeat fixed;
       transition: background 0.4s ease;
     }
 
-    body.theme-1 {
-      /* Gloria: warm rot-goldener Weihnachtsverlauf mit Lichtpunkten */
-      background:
-        radial-gradient(circle at 10% 15%, rgba(255,255,255,0.55) 0, transparent 55%),
-        radial-gradient(circle at 80% 0%, rgba(255,255,255,0.45) 0, transparent 60%),
-        radial-gradient(circle at top, #ffe6e6, #ffb347);
-    }
-
-    body.theme-2 {
-      /* Larissa: grünlicher Tannenwald-Verlauf mit Lichtpunkten */
-      background:
-        radial-gradient(circle at 15% 20%, rgba(255,255,255,0.5) 0, transparent 55%),
-        radial-gradient(circle at 85% 10%, rgba(255,255,255,0.4) 0, transparent 60%),
-        radial-gradient(circle at top, #e6ffef, #7adf82);
-    }
-
+    /* Drei Themes teilen sich dasselbe Bild, falls später gewünscht, können hier eigene Bilder gesetzt werden */
+    body.theme-1,
+    body.theme-2,
     body.theme-3 {
-      /* Vanessa: kühler blau-violetter Winterhimmel mit Lichtpunkten */
-      background:
-        radial-gradient(circle at 10% 15%, rgba(255,255,255,0.6) 0, transparent 55%),
-        radial-gradient(circle at 80% 5%, rgba(255,255,255,0.45) 0, transparent 60%),
-        radial-gradient(circle at top, #e6f0ff, #8fa9ff);
-    }
-
-    /* Weihnachtslandschaft */
-    .scene {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
-
-    .hill {
-      position: absolute;
-      left: -10%;
-      right: -10%;
-      bottom: -20%;
-      height: 48%;
-      background:
-        radial-gradient(ellipse at top, rgba(255,255,255,0.98) 0, rgba(255,255,255,0.94) 40%, transparent 75%);
-    }
-
-    .tree {
-      position: absolute;
-      bottom: 7%;
-      width: 0;
-      height: 0;
-      border-left: 24px solid transparent;
-      border-right: 24px solid transparent;
-      border-bottom: 56px solid #2e7d32;
-      filter: drop-shadow(0 4px 4px rgba(0,0,0,0.25));
-    }
-
-    .tree::after {
-      content: "";
-      position: absolute;
-      left: -5px;
-      right: -5px;
-      bottom: -12px;
-      height: 12px;
-      background: #795548;
-      border-radius: 3px;
-    }
-
-    .tree.t1 { left: 10%; transform: scale(0.95); }
-    .tree.t2 { left: 38%; bottom: 6%; transform: scale(1.2); }
-    .tree.t3 { left: 70%; transform: scale(0.85); }
-    .tree.t4 { left: 85%; bottom: 5%; transform: scale(1.05); }
-
-    .tree::before {
-      content: "";
-      position: absolute;
-      top: 6px;
-      left: -16px;
-      right: -16px;
-      height: 6px;
-      border-radius: 999px;
-      background: radial-gradient(circle, rgba(255,255,255,0.9) 0, transparent 60%);
-      opacity: 0.9;
-    }
-
-    /* Sterne */
-    .star {
-      position: absolute;
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.95);
-      box-shadow: 0 0 6px rgba(255,255,255,0.9);
-      animation: starTwinkle 3.5s ease-in-out infinite;
-    }
-
-    .star.s1 { top: 8%; left: 12%; animation-delay: 0.0s; }
-    .star.s2 { top: 12%; left: 32%; animation-delay: 0.6s; }
-    .star.s3 { top: 6%; left: 52%; animation-delay: 1.2s; }
-    .star.s4 { top: 14%; left: 68%; animation-delay: 1.8s; }
-    .star.s5 { top: 10%; left: 84%; animation-delay: 2.3s; }
-    .star.s6 { top: 4%; left: 22%; animation-delay: 2.9s; }
-    .star.s7 { top: 18%; left: 44%; animation-delay: 3.3s; }
-    .star.s8 { top: 16%; left: 76%; animation-delay: 1.5s; }
-
-    @keyframes starTwinkle {
-      0%, 100% { opacity: 0.2; transform: scale(0.8); }
-      50%      { opacity: 1.0; transform: scale(1.2); }
-    }
-
-    .snow {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 0;
-    }
-
-    .flake {
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.8);
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
-      animation-name: snowFall;
-      animation-timing-function: linear;
-      animation-iteration-count: infinite;
-    }
-
-    .flake.f1  { left:  5%; animation-duration: 14s; animation-delay: 0s; }
-    .flake.f2  { left: 15%; animation-duration: 18s; animation-delay: -3s; }
-    .flake.f3  { left: 25%; animation-duration: 16s; animation-delay: -6s; }
-    .flake.f4  { left: 35%; animation-duration: 20s; animation-delay: -9s; }
-    .flake.f5  { left: 45%; animation-duration: 17s; animation-delay: -12s; }
-    .flake.f6  { left: 55%; animation-duration: 19s; animation-delay: -4s; }
-    .flake.f7  { left: 65%; animation-duration: 15s; animation-delay: -8s; }
-    .flake.f8  { left: 75%; animation-duration: 21s; animation-delay: -2s; }
-    .flake.f9  { left: 85%; animation-duration: 18s; animation-delay: -10s; }
-    .flake.f10 { left: 10%; animation-duration: 22s; animation-delay: -5s; }
-    .flake.f11 { left: 50%; animation-duration: 24s; animation-delay: -7s; }
-    .flake.f12 { left: 90%; animation-duration: 20s; animation-delay: -11s; }
-
-    @keyframes snowFall {
-      0% {
-        transform: translate3d(0, -10vh, 0);
-        opacity: 0;
-      }
-      10% {
-        opacity: 1;
-      }
-      100% {
-        transform: translate3d(0, 110vh, 0);
-        opacity: 0;
-      }
+      background: #041624 url("background.png") center top / cover no-repeat fixed;
     }
 
     .app {
       width: min(680px, 84vw);
-      background: #ffffffdd;
+      background: #ffffffee;
       border-radius: 18px;
       padding: 16px 16px 18px;
-      box-shadow: 0 20px 45px rgba(0,0,0,0.18);
+      box-shadow: 0 20px 45px rgba(0,0,0,0.26);
       position: relative;
       z-index: 1;
       transform-origin: center;
@@ -194,18 +48,18 @@
         box-shadow 0.25s ease;
     }
 
-    /* Modus: Mini (Wunderland im Vordergrund) */
+    /* Modus: Mini (mehr Hintergrund sichtbar) */
     body.mode-mini .app {
       transform: translateY(10vh) scale(0.78);
-      background: #ffffffc4;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+      background: #ffffffd8;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.24);
     }
 
-    /* Modus: Voll (Kalender im Vordergrund zum Suchen) */
+    /* Modus: Voll (Kalender im Fokus zum Türchen öffnen) */
     body.mode-full .app {
       transform: translateY(0) scale(1.0);
       background: #ffffffee;
-      box-shadow: 0 20px 45px rgba(0,0,0,0.26);
+      box-shadow: 0 20px 45px rgba(0,0,0,0.3);
     }
 
     header {
@@ -316,7 +170,7 @@
 
     .door:hover:not(.door-locked) {
       transform: translateY(-1px);
-      box-shadow: 0 10px 18px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.25);
     }
 
     .door-today:not(.door-open):not(.door-locked) {
@@ -330,7 +184,7 @@
       }
       100% {
         transform: translateY(-2px) scale(1.03);
-        box-shadow: 0 12px 22px rgba(0,0,0,0.3);
+        box-shadow: 0 12px 22px rgba(0,0,0,0.35);
       }
     }
 
@@ -395,7 +249,7 @@
     .date-info {
       margin-top: 10px;
       font-size: 0.8rem;
-      color: #666;
+      color: #444;
       text-align: center;
     }
 
@@ -421,10 +275,10 @@
       color: #222;
     }
 
-    .overlay-title span:nth-child(4n+1) { color: #d32f2f; }  /* rot */
-    .overlay-title span:nth-child(4n+2) { color: #2e7d32; }  /* grün */
-    .overlay-title span:nth-child(4n+3) { color: #f9a825; }  /* goldgelb */
-    .overlay-title span:nth-child(4n+4) { color: #795548; }  /* warmes braun */
+    .overlay-title span:nth-child(4n+1) { color: #d32f2f; }
+    .overlay-title span:nth-child(4n+2) { color: #2e7d32; }
+    .overlay-title span:nth-child(4n+3) { color: #f9a825; }
+    .overlay-title span:nth-child(4n+4) { color: #795548; }
 
     .overlay-santa {
       font-size: 2.6rem;
@@ -470,37 +324,6 @@
   </style>
 </head>
 <body>
-
-<div class="scene" aria-hidden="true">
-  <div class="hill"></div>
-  <div class="tree t1"></div>
-  <div class="tree t2"></div>
-  <div class="tree t3"></div>
-  <div class="tree t4"></div>
-  <div class="star s1"></div>
-  <div class="star s2"></div>
-  <div class="star s3"></div>
-  <div class="star s4"></div>
-  <div class="star s5"></div>
-  <div class="star s6"></div>
-  <div class="star s7"></div>
-  <div class="star s8"></div>
-</div>
-
-<div class="snow" aria-hidden="true">
-  <div class="flake f1"></div>
-  <div class="flake f2"></div>
-  <div class="flake f3"></div>
-  <div class="flake f4"></div>
-  <div class="flake f5"></div>
-  <div class="flake f6"></div>
-  <div class="flake f7"></div>
-  <div class="flake f8"></div>
-  <div class="flake f9"></div>
-  <div class="flake f10"></div>
-  <div class="flake f11"></div>
-  <div class="flake f12"></div>
-</div>
 
 <div class="app">
   <header>
@@ -551,7 +374,7 @@
    * KONFIGURATION
    ******************************************************/
 
-  const APP_VERSION = "Adventskalender v1.8 – 2025-12-01";
+  const APP_VERSION = "Adventskalender v1.9 – Background Edition";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
@@ -560,7 +383,6 @@
       id: "1",
       name: "Gloria",
       totalEuro: 150.0,
-      // Tag 6: 4,00–8,00 €, Tag 24: 90,00–110,00 €
       day6RangeEuro: { min: 4.0, max: 8.0 },
       day24RangeEuro: { min: 90.0, max: 110.0 }
     },
@@ -568,7 +390,6 @@
       id: "2",
       name: "Larissa",
       totalEuro: 30.0,
-      // Tag 6: 3,00–4,50 €, Tag 24: 7,00–10,00 €
       day6RangeEuro: { min: 3.0, max: 4.5 },
       day24RangeEuro: { min: 7.0, max: 10.0 }
     },
@@ -600,7 +421,6 @@
   }
 
   function randomIntInclusive(min, max) {
-    // inklusiv beider Grenzen
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
@@ -617,15 +437,14 @@
     const now = new Date();
     return {
       year: now.getFullYear(),
-      month: now.getMonth(), // 0=Jan, 11=Dez
+      month: now.getMonth(),
       day: now.getDate()
     };
   }
 
   function isDoorUnlocked(doorDay) {
     const { month, day } = getTodayInfo();
-    // nur im Dezember & ab jeweiligem Tag
-    if (month !== 11) return false;
+    if (month !== 11) return false; // nur Dezember
     return day >= doorDay;
   }
 
@@ -641,7 +460,7 @@
 
   function generateAmountsForCalendar(calConfig) {
     const totalCents = Math.round(calConfig.totalEuro * 100);
-    const totalUnits = totalCents / UNIT_CENTS; // int, da 0,50er Raster
+    const totalUnits = totalCents / UNIT_CENTS;
 
     const { minUnits: day6Min, maxUnits: day6Max } = euroRangeToUnitRange(calConfig.day6RangeEuro);
     const { minUnits: day24Min, maxUnits: day24Max } = euroRangeToUnitRange(calConfig.day24RangeEuro);
@@ -652,10 +471,8 @@
     }
     const normalsCount = normalDays.length;
 
-    // Speichere Units pro Tag (1-basiert über Array-Index)
     const unitsPerDay = new Array(DAYS_TOTAL + 1).fill(0);
 
-    // Zufällige Units für 6 & 24 suchen, bis sie ins Budget passen
     let u6, u24;
     const maxTries = 1000;
     let tries = 0;
@@ -665,13 +482,12 @@
       u24 = randomIntInclusive(day24Min, day24Max);
 
       const specials = u6 + u24;
-      const minNeededForNormals = normalsCount; // je normaler Tag mind. 1 Unit
+      const minNeededForNormals = normalsCount;
       if (specials + minNeededForNormals <= totalUnits) {
         break;
       }
       if (tries > maxTries) {
         console.warn("Konnte keine gültigen Specials finden, fallback.");
-        // Minimal fallback: Specials auf Minimum setzen
         u6 = day6Min;
         u24 = day24Min;
         break;
@@ -683,13 +499,11 @@
 
     let remainingUnits = totalUnits - (u6 + u24);
 
-    // jedem normalen Tag 1 Unit geben
     for (const d of normalDays) {
       unitsPerDay[d] = 1;
       remainingUnits -= 1;
     }
 
-    // verbleibende Units zufällig auf normale Tage verteilen
     while (remainingUnits > 0) {
       const idx = randomIntInclusive(0, normalDays.length - 1);
       const day = normalDays[idx];
@@ -697,24 +511,17 @@
       remainingUnits -= 1;
     }
 
-    // in Cent umrechnen, Index 0 ignorieren
     const amountsCents = [];
     for (let d = 1; d <= DAYS_TOTAL; d++) {
       amountsCents.push(unitsPerDay[d] * UNIT_CENTS);
     }
 
-    // Sicherheitscheck
     const sumCheck = amountsCents.reduce((a, b) => a + b, 0);
     if (sumCheck !== totalCents) {
-      console.warn(
-        "Summe stimmt nicht!",
-        sumCheck,
-        "≠",
-        totalCents
-      );
+      console.warn("Summe stimmt nicht!", sumCheck, "≠", totalCents);
     }
 
-    return amountsCents; // Array mit 24 Einträgen (Index 0..23)
+    return amountsCents;
   }
 
   /******************************************************
@@ -777,7 +584,7 @@
   }
 
   /******************************************************
-   * UI
+   * OVERLAYS
    ******************************************************/
 
   const overlay = document.getElementById("door-overlay");
@@ -822,8 +629,6 @@
     const effects = ["door-effect-glow", "door-effect-bounce", "door-effect-twinkle"];
     const effectClass = effects[Math.floor(Math.random() * effects.length)];
     door.classList.add(effectClass);
-
-    // Effekt nach kurzer Zeit wieder entfernen, Tür bleibt aber offen
     setTimeout(() => {
       door.classList.remove(effectClass);
     }, 1300);
@@ -833,7 +638,6 @@
     if (!introOverlay || !introConfirm || !introMessage) return;
 
     const { month, day } = getTodayInfo();
-    // Nur im Dezember sinnvoll
     if (month !== 11 || day < 1 || day > 24) {
       return;
     }
@@ -859,11 +663,14 @@
     introConfirm.onclick = () => {
       introOverlay.style.display = "none";
       introOverlay.setAttribute("aria-hidden", "true");
-      // Wenn das Kind „Zum Kalender“ klickt -> Kalender groß im Vordergrund
       document.body.classList.remove("mode-mini");
       document.body.classList.add("mode-full");
     };
   }
+
+  /******************************************************
+   * UI
+   ******************************************************/
 
   function buildCalendar(calConfig, data) {
     const grid = document.getElementById("calendar-grid");
@@ -886,7 +693,6 @@
 
     const today = { year, month, day };
 
-    // Zufällige Anordnung der Tage 1–24
     const order = [];
     for (let d = 1; d <= DAYS_TOTAL; d++) {
       order.push(d);
@@ -910,7 +716,6 @@
       if (isOpened) {
         door.classList.add("door-open");
       }
-      // heutiges Türchen leicht hervorheben (Animation), falls geöffnet werden darf
       if (today.month === 11 && today.day === dayNumber && unlocked && !isOpened) {
         door.classList.add("door-today");
       }
@@ -939,7 +744,6 @@
         }
 
         if (data.opened[dataIndex]) {
-          // Bereits geöffnet – kein neuer Effekt, Kalender bleibt im aktuellen Modus
           return;
         }
 
@@ -947,11 +751,7 @@
           data.opened[dataIndex] = true;
           saveOpened(data.keys, data.opened);
           door.classList.add("door-open");
-          // zufälliger Effekt, nachdem das Türchen gefunden und geöffnet wurde
           applyRandomDoorEffect(door);
-
-          // Nach dem Öffnen geht der Kalender wieder in den Mini-Modus,
-          // sodass das Weihnachtswunderland im Vordergrund ist.
           document.body.classList.remove("mode-full");
           document.body.classList.add("mode-mini");
         });
@@ -964,27 +764,22 @@
    ******************************************************/
 
   (function init() {
-    let kal = getQueryParam("kal");
-
-    // Overlay-Titel bunt einfärben
     colorizeOverlayTitle();
 
-    // Standard-Modus: Mini (Wunderland)
     document.body.classList.add("mode-mini");
 
-    // Version in der Oberfläche anzeigen
     const versionInfo = document.getElementById("version-info");
     if (versionInfo) {
       versionInfo.textContent = APP_VERSION;
     }
+
+    let kal = getQueryParam("kal");
 
     const title = document.getElementById("calendar-title");
     const subtitle = document.getElementById("calendar-subtitle");
     const dateInfo = document.getElementById("date-info");
     const grid = document.getElementById("calendar-grid");
 
-    // Falls kein oder ein ungültiger Kalender-Parameter übergeben wurde,
-    // Seite als gesperrt / Landing kennzeichnen.
     if (!kal || !CALENDARS[kal]) {
       const { year, month, day } = getTodayInfo();
 
@@ -1013,16 +808,13 @@
 
     const calConfig = CALENDARS[kal];
 
-    // Kalender-spezifisches Theme setzen
     document.body.classList.add("theme-" + calConfig.id);
 
     const data = loadOrCreateData(calConfig);
     buildCalendar(calConfig, data);
 
-    // Intro-Overlay anzeigen (Weihnachtswunderland-Start)
     showIntroIfNeeded(calConfig, data);
 
-    // Reset-Button für Tests
     const resetBtn = document.getElementById("reset-btn");
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
