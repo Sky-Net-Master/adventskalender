@@ -277,7 +277,8 @@
       margin-top: 6px;
     }
 
-    #overlay-confirm {
+    #overlay-confirm,
+    #intro-confirm {
       margin-top: 12px;
       padding: 8px 14px;
       border-radius: 999px;
@@ -289,7 +290,8 @@
       box-shadow: 0 6px 12px rgba(0,0,0,0.25);
     }
 
-    #overlay-confirm:active {
+    #overlay-confirm:active,
+    #intro-confirm:active {
       transform: translateY(1px);
     }
 
@@ -333,6 +335,19 @@
   <div class="date-info" id="version-info"></div>
 </div>
 
+<!-- Intro-Overlay: Weihnachtswunderland -->
+<div id="intro-overlay" class="overlay" aria-hidden="true">
+  <div class="overlay-inner">
+    <div class="overlay-santa">🎄✨</div>
+    <div class="overlay-text">
+      <p id="intro-title" class="overlay-title">Willkommen im Weihnachtswunderland</p>
+      <p id="intro-message"></p>
+    </div>
+    <button id="intro-confirm" type="button">Zum Kalender</button>
+  </div>
+</div>
+
+<!-- Türchen-Overlay -->
 <div id="door-overlay" class="overlay" aria-hidden="true">
   <div class="overlay-inner">
     <div class="overlay-santa">🎅🛷</div>
@@ -350,7 +365,7 @@
    * KONFIGURATION
    ******************************************************/
 
-  const APP_VERSION = "Adventskalender v1.3 – 2025-12-01";
+  const APP_VERSION = "Adventskalender v1.4 – 2025-12-01";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
@@ -576,6 +591,11 @@
   const overlayConfirm = document.getElementById("overlay-confirm");
   const overlayTitle = document.getElementById("overlay-title");
 
+  const introOverlay = document.getElementById("intro-overlay");
+  const introTitle = document.getElementById("intro-title");
+  const introMessage = document.getElementById("intro-message");
+  const introConfirm = document.getElementById("intro-confirm");
+
   function colorizeOverlayTitle() {
     if (!overlayTitle) return;
     const text = overlayTitle.textContent || "";
@@ -601,6 +621,39 @@
     };
     overlay.style.display = "flex";
     overlay.setAttribute("aria-hidden","false");
+  }
+
+  function showIntroIfNeeded(calConfig, data) {
+    if (!introOverlay || !introConfirm || !introMessage) return;
+
+    const { month, day } = getTodayInfo();
+    // Nur im Dezember sinnvoll
+    if (month !== 11 || day < 1 || day > 24) {
+      return;
+    }
+
+    if (introTitle) {
+      introTitle.textContent = calConfig.name + "s Weihnachtswunderland";
+    }
+
+    const todayIndex = day - 1;
+    const alreadyOpened = data.opened && data.opened[todayIndex];
+
+    if (alreadyOpened) {
+      introMessage.textContent =
+        "Das Türchen " + day + " ist heute schon geplündert – aber du kannst natürlich weiterstöbern.";
+    } else {
+      introMessage.textContent =
+        "Heute wartet Türchen " + day + " auf dich. Such es im Kalender und tippe darauf, um deine Überraschung zu sehen!";
+    }
+
+    introOverlay.style.display = "flex";
+    introOverlay.setAttribute("aria-hidden", "false");
+
+    introConfirm.onclick = () => {
+      introOverlay.style.display = "none";
+      introOverlay.setAttribute("aria-hidden", "true");
+    };
   }
 
   function buildCalendar(calConfig, data) {
@@ -737,6 +790,9 @@
 
     const data = loadOrCreateData(calConfig);
     buildCalendar(calConfig, data);
+
+    // Intro-Overlay anzeigen (Weihnachtswunderland-Start)
+    showIntroIfNeeded(calConfig, data);
 
     // Reset-Button für Tests in Safari etc.
     const resetBtn = document.getElementById("reset-btn");
