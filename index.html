@@ -388,6 +388,7 @@
 
   <div class="date-info" id="date-info"></div>
   <div class="date-info" id="version-info"></div>
+  <div class="date-info" id="admin-info"></div>
 </div>
 
 <!-- Intro-Overlay: Weihnachtswunderland -->
@@ -420,7 +421,7 @@
    * KONFIGURATION
    ******************************************************/
 
-  const APP_VERSION = "Adventskalender v2.3 – Background Edition";
+  const APP_VERSION = "Adventskalender v2.4 – Admin & Test Edition";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
@@ -467,6 +468,9 @@
     const url = new URL(window.location.href);
     return url.searchParams.get(name);
   }
+
+  const TEST_MODE  = getQueryParam("test") === "1";
+  const ADMIN_MODE = getQueryParam("admin") === "1";
 
   function formatEuro(cents) {
     const euros = (cents / 100).toFixed(2).replace(".", ",");
@@ -595,45 +599,78 @@
     let amounts = null;
     let opened = null;
 
-    try {
-      const a = localStorage.getItem(keys.amounts);
-      if (a) {
-        const parsed = JSON.parse(a);
-        if (Array.isArray(parsed) && parsed.length === DAYS_TOTAL) {
-          amounts = parsed;
+    if (!TEST_MODE) {
+      try {
+        const a = localStorage.getItem(keys.amounts);
+        if (a) {
+          const parsed = JSON.parse(a);
+          if (Array.isArray(parsed) && parsed.length === DAYS_TOTAL) {
+            amounts = parsed;
+          }
         }
+      } catch (e) {
+        console.warn("Fehler beim Lesen amounts:", e);
       }
-    } catch (e) {
-      console.warn("Fehler beim Lesen amounts:", e);
-    }
 
-    try {
-      const o = localStorage.getItem(keys.opened);
-      if (o) {
-        const parsed = JSON.parse(o);
-        if (Array.isArray(parsed) && parsed.length === DAYS_TOTAL) {
-          opened = parsed.map(Boolean);
+      try {
+        const o = localStorage.getItem(keys.opened);
+        if (o) {
+          const parsed = JSON.parse(o);
+          if (Array.isArray(parsed) && parsed.length === DAYS_TOTAL) {
+            opened = parsed.map(Boolean);
+          }
         }
+      } catch (e) {
+        console.warn("Fehler beim Lesen opened:", e);
       }
-    } catch (e) {
-      console.warn("Fehler beim Lesen opened:", e);
     }
 
     if (!amounts) {
       amounts = generateAmountsForCalendar(calConfig);
-      localStorage.setItem(keys.amounts, JSON.stringify(amounts));
+      if (!TEST_MODE) {
+        try {
+          localStorage.setItem(keys.amounts, JSON.stringify(amounts));
+        } catch (e) {
+          console.warn("Fehler beim Schreiben amounts:", e);
+        }
+      }
     }
 
     if (!opened) {
       opened = new Array(DAYS_TOTAL).fill(false);
-      localStorage.setItem(keys.opened, JSON.stringify(opened));
+      if (!TEST_MODE) {
+        try {
+          localStorage.setItem(keys.opened, JSON.stringify(opened));
+        } catch (e) {
+          console.warn("Fehler beim Schreiben opened:", e);
+        }
+      }
     }
 
     return { amounts, opened, keys };
   }
 
   function saveOpened(keys, opened) {
-    localStorage.setItem(keys.opened, JSON.stringify(opened));
+    if (TEST_MODE) return;
+    try {
+      localStorage.setItem(keys.opened, JSON.stringify(opened));
+    } catch (e) {
+      console.warn("Fehler beim Schreiben opened:", e);
+    }
+  }
+  function adminResetAll() {
+    try {
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith("advent_v1_")) {
+          localStorage.removeItem(key);
+        }
+      }
+      alert("Alle Adventskalender-Daten auf diesem Gerät wurden gelöscht.");
+    } catch (e) {
+      console.warn("Admin-Reset fehlgeschlagen:", e);
+      alert("Admin-Reset fehlgeschlagen (siehe Konsole).");
+    }
   }
 
   /******************************************************
@@ -829,7 +866,31 @@
 
     const versionInfo = document.getElementById("version-info");
     if (versionInfo) {
-      versionInfo.textContent = APP_VERSION;
+      versionInfo.textContent = APP_VERSION + (TEST_MODE ? " – TESTMODUS (keine echten Daten)" : "");
+    }
+
+    const adminInfo = document.getElementById("admin-info");
+    if (adminInfo && ADMIN_MODE) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = "Admin: Gerät zurücksetzen";
+      btn.style.border = "none";
+      btn.style.borderRadius = "999px";
+      btn.style.padding = "4px 10px";
+      btn.style.fontSize = "0.75rem";
+      btn.style.cursor = "pointer";
+      btn.style.background = "#c62828";
+      btn.style.color = "#fff";
+      btn.style.boxShadow = "0 2px 6px rgba(0,0,0,0.25)";
+      btn.addEventListener("click", () => {
+        if (confirm("Wirklich alle Adventskalender-Daten auf DIESEM Gerät löschen?")) {
+          adminResetAll();
+        }
+      });
+      adminInfo.textContent = "";
+      adminInfo.appendChild(btn);
+    } else if (adminInfo) {
+      adminInfo.textContent = "";
     }
 
     let kal = getQueryParam("kal");
@@ -846,7 +907,7 @@
         title.textContent = "Adventskalender";
       }
       if (subtitle) {
-        subtitle.textContent = "Diese Seite ist gesperrt. Bitte nutze deinen persönlichen Link für Gloria, Larissa oder Vanessa.";
+        subtitle.textContent = "Diese Seite ist gesperrt. Bitte nutze deinen persönlichen Link für Gloria, Larissa, Vanessa oder Hugo.";
       }
       if (dateInfo) {
         dateInfo.textContent =
