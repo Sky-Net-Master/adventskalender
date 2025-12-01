@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Adventskalender</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: light dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at top, #fdf6e3, #e0f0ff);
+    }
+
+    .app {
+      width: min(900px, 96vw);
+      background: #ffffffee;
+      border-radius: 18px;
+      padding: 18px 18px 20px;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.18);
+    }
+
+    header {
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2.6vw, 1.8rem);
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 800px) {
+      .grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 540px) {
+      .grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .door {
+      position: relative;
+      padding-top: 100%; /* Quadrat */
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      background: linear-gradient(135deg, #004e92, #000428);
+      color: #fff;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.15s;
+    }
+
+    .door-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 6px;
+      text-align: center;
+    }
+
+    .door-number {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .door-amount {
+      font-size: 0.9rem;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .door-open .door-amount {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .door-open {
+      background: linear-gradient(135deg, #0bab64, #3bb78f);
+    }
+
+    .door-locked {
+      background: linear-gradient(135deg, #777, #444);
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    .door-locked .door-number::after {
+      content: "🔒";
+      display: block;
+      font-size: 0.85rem;
+    }
+
+    .door:hover:not(.door-locked) {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.2);
+    }
+
+    .date-info {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #666;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1 id="calendar-title">Adventskalender</h1>
+    <p id="calendar-subtitle"></p>
+  </header>
+
+  <div class="grid" id="calendar-grid">
+    <!-- Türen werden durch JS eingefügt -->
+  </div>
+
+  <div class="date-info" id="date-info"></div>
+  <div class="date-info">
+    <button id="reset-btn" type="button" style="border:none;background:none;color:#c00;font-size:0.75rem;text-decoration:underline;cursor:pointer;">
+      Kalender zurücksetzen (Test)
+    </button>
+  </div>
+</div>
+
+<script>
+  /******************************************************
+   * KONFIGURATION
+   ******************************************************/
+
+  const UNIT_CENTS = 50; // 0,50 € pro Einheit
+
+  const CALENDARS = {
+    "1": {
+      id: "1",
+      name: "Gloria",
+      totalEuro: 150.0,
+      // Tag 6: 4,00–8,00 €, Tag 24: 90,00–110,00 €
+      day6RangeEuro: { min: 4.0, max: 8.0 },
+      day24RangeEuro: { min: 90.0, max: 110.0 }
+    },
+    "2": {
+      id: "2",
+      name: "Larissa",
+      totalEuro: 30.0,
+      // Tag 6: 3,00–4,50 €, Tag 24: 7,00–10,00 €
+      day6RangeEuro: { min: 3.0, max: 4.5 },
+      day24RangeEuro: { min: 7.0, max: 10.0 }
+    },
+    "3": {
+      id: "3",
+      name: "Vanessa",
+      totalEuro: 30.0,
+      day6RangeEuro: { min: 3.0, max: 4.5 },
+      day24RangeEuro: { min: 7.0, max: 10.0 }
+    }
+  };
+
+  const DAYS_TOTAL = 24;
+  const DAY6 = 6;
+  const DAY24 = 24;
+
+  /******************************************************
+   * HILFSFUNKTIONEN
+   ******************************************************/
+
+  function getQueryParam(name) {
+    const url = new URL(window.location.href);
+    return url.searchParams.get(name);
+  }
+
+  function formatEuro(cents) {
+    const euros = (cents / 100).toFixed(2).replace(".", ",");
+    return euros + " €";
+  }
+
+  function randomIntInclusive(min, max) {
+    // inklusiv beider Grenzen
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function getTodayInfo() {
+    const now = new Date();
+    return {
+      year: now.getFullYear(),
+      month: now.getMonth(), // 0=Jan, 11=Dez
+      day: now.getDate()
+    };
+  }
+
+  function isDoorUnlocked(doorDay) {
+    const { month, day } = getTodayInfo();
+    // nur im Dezember & ab jeweiligem Tag
+    if (month !== 11) return false;
+    return day >= doorDay;
+  }
+
+  /******************************************************
+   * VERTEILLOGIK
+   ******************************************************/
+
+  function euroRangeToUnitRange(rangeEuro) {
+    const minUnits = Math.round(rangeEuro.min * 100 / UNIT_CENTS);
+    const maxUnits = Math.round(rangeEuro.max * 100 / UNIT_CENTS);
+    return { minUnits, maxUnits };
+  }
+
+  function generateAmountsForCalendar(calConfig) {
+    const totalCents = Math.round(calConfig.totalEuro * 100);
+    const totalUnits = totalCents / UNIT_CENTS; // int, da 0,50er Raster
+
+    const { minUnits: day6Min, maxUnits: day6Max } = euroRangeToUnitRange(calConfig.day6RangeEuro);
+    const { minUnits: day24Min, maxUnits: day24Max } = euroRangeToUnitRange(calConfig.day24RangeEuro);
+
+    const normalDays = [];
+    for (let d = 1; d <= DAYS_TOTAL; d++) {
+      if (d !== DAY6 && d !== DAY24) normalDays.push(d);
+    }
+    const normalsCount = normalDays.length;
+
+    // Speichere Units pro Tag (1-basiert über Array-Index)
+    const unitsPerDay = new Array(DAYS_TOTAL + 1).fill(0);
+
+    // Zufällige Units für 6 & 24 suchen, bis sie ins Budget passen
+    let u6, u24;
+    const maxTries = 1000;
+    let tries = 0;
+    while (true) {
+      tries++;
+      u6 = randomIntInclusive(day6Min, day6Max);
+      u24 = randomIntInclusive(day24Min, day24Max);
+
+      const specials = u6 + u24;
+      const minNeededForNormals = normalsCount; // je normaler Tag mind. 1 Unit
+      if (specials + minNeededForNormals <= totalUnits) {
+        break;
+      }
+      if (tries > maxTries) {
+        console.warn("Konnte keine gültigen Specials finden, fallback.");
+        // Minimal fallback: Specials auf Minimum setzen
+        u6 = day6Min;
+        u24 = day24Min;
+        break;
+      }
+    }
+
+    unitsPerDay[DAY6] = u6;
+    unitsPerDay[DAY24] = u24;
+
+    let remainingUnits = totalUnits - (u6 + u24);
+
+    // jedem normalen Tag 1 Unit geben
+    for (const d of normalDays) {
+      unitsPerDay[d] = 1;
+      remainingUnits -= 1;
+    }
+
+    // verbleibende Units zufällig auf normale Tage verteilen
+    while (remainingUnits > 0) {
+      const idx = randomIntInclusive(0, normalDays.length - 1);
+      const day = normalDays[idx];
+      unitsPerDay[day] += 1;
+      remainingUnits -= 1;
+    }
+
+    // in Cent umrechnen, Index 0 ignorieren
+    const amountsCents = [];
+    for (let d = 1; d <= DAYS_TOTAL; d++) {
+      amountsCents.push(unitsPerDay[d] * UNIT_CENTS);
+    }
+
+    // Sicherheitscheck
+    const sumCheck = amountsCents.reduce((a, b) => a + b, 0);
+    if (sumCheck !== totalCents) {
+      console.warn(
+        "Summe stimmt nicht!",
+        sumCheck,
+        "≠",
+        totalCents
+      );
+    }
+
+    return amountsCents; // Array mit 24 Einträgen (Index 0..23)
+  }
+
+  /******************************************************
+   * STORAGE
+   ******************************************************/
+
+  function storageKeysForCalendar(calId) {
+    const prefix = "advent_v1_kal" + calId + "_";
+    return {
+      amounts: prefix + "amounts_cents",
+      opened: prefix + "opened"
+    };
+  }
+
+  function loadOrCreateData(calConfig) {
+    const keys = storageKeysForCalendar(calConfig.id);
+
+    let amounts = null;
+    let opened = null;
+
+    try {
+      const a = localStorage.getItem(keys.amounts);
+      if (a) {
+        const parsed = JSON.parse(a);
+        if (Array.isArray(parsed) && parsed.length === DAYS_TOTAL) {
+          amounts = parsed;
+        }
+      }
+    } catch (e) {
+      console.warn("Fehler beim Lesen amounts:", e);
+    }
+
+    try {
+      const o = localStorage.getItem(keys.opened);
+      if (o) {
+        const parsed = JSON.parse(o);
+        if (Array.isArray(parsed) && parsed.length === DAYS_TOTAL) {
+          opened = parsed.map(Boolean);
+        }
+      }
+    } catch (e) {
+      console.warn("Fehler beim Lesen opened:", e);
+    }
+
+    if (!amounts) {
+      amounts = generateAmountsForCalendar(calConfig);
+      localStorage.setItem(keys.amounts, JSON.stringify(amounts));
+    }
+
+    if (!opened) {
+      opened = new Array(DAYS_TOTAL).fill(false);
+      localStorage.setItem(keys.opened, JSON.stringify(opened));
+    }
+
+    return { amounts, opened, keys };
+  }
+
+  function saveOpened(keys, opened) {
+    localStorage.setItem(keys.opened, JSON.stringify(opened));
+  }
+
+  /******************************************************
+   * UI
+   ******************************************************/
+
+  function buildCalendar(calConfig, data) {
+    const grid = document.getElementById("calendar-grid");
+    grid.innerHTML = "";
+
+    const title = document.getElementById("calendar-title");
+    const subtitle = document.getElementById("calendar-subtitle");
+    const dateInfo = document.getElementById("date-info");
+
+    title.textContent = calConfig.name + "s Adventskalender";
+
+    const { year, month, day } = getTodayInfo();
+    dateInfo.textContent =
+      "Heute ist der " +
+      String(day).padStart(2, "0") + "." +
+      String(month + 1).padStart(2, "0") + "." +
+      year;
+
+    subtitle.textContent = ""; // aktuell keine Hinweise / Gesamtbeträge etc.
+
+    for (let i = 0; i < DAYS_TOTAL; i++) {
+      const dayNumber = i + 1;
+      const amountCents = data.amounts[i];
+      const isOpened = data.opened[i];
+      const unlocked = isDoorUnlocked(dayNumber);
+
+      const door = document.createElement("div");
+      door.className = "door";
+
+      if (!unlocked) {
+        door.classList.add("door-locked");
+      }
+      if (isOpened) {
+        door.classList.add("door-open");
+      }
+
+      const content = document.createElement("div");
+      content.className = "door-content";
+
+      const numEl = document.createElement("div");
+      numEl.className = "door-number";
+      numEl.textContent = dayNumber;
+
+      const amountEl = document.createElement("div");
+      amountEl.className = "door-amount";
+      amountEl.textContent = formatEuro(amountCents);
+
+      content.appendChild(numEl);
+      content.appendChild(amountEl);
+      door.appendChild(content);
+      grid.appendChild(door);
+
+      door.addEventListener("click", () => {
+        const nowUnlocked = isDoorUnlocked(dayNumber);
+        if (!nowUnlocked) {
+          alert("Dieses Türchen ist noch verschlossen.");
+          return;
+        }
+        if (!data.opened[i]) {
+          data.opened[i] = true;
+          saveOpened(data.keys, data.opened);
+        }
+        door.classList.add("door-open");
+      });
+    }
+  }
+
+  /******************************************************
+   * INIT
+   ******************************************************/
+
+  (function init() {
+    let kal = getQueryParam("kal");
+    if (!kal || !CALENDARS[kal]) {
+      kal = "1"; // Standard: Gloria
+    }
+    const calConfig = CALENDARS[kal];
+    const data = loadOrCreateData(calConfig);
+    buildCalendar(calConfig, data);
+
+    // Reset-Button für Tests in Safari etc.
+    const resetBtn = document.getElementById("reset-btn");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", () => {
+        if (!confirm("Kalender für diesen Namen wirklich zurücksetzen?\nAlle Türchen werden geschlossen und Beträge neu gewürfelt.")) {
+          return;
+        }
+        const keys = data.keys;
+        try {
+          localStorage.removeItem(keys.amounts);
+          localStorage.removeItem(keys.opened);
+        } catch (e) {
+          console.warn("Konnte localStorage nicht löschen:", e);
+        }
+        location.reload();
+      });
+    }
+  })();
+</script>
+</body>
+</html>
