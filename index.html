@@ -31,14 +31,15 @@
       inset: 0;
       pointer-events: none;
       z-index: 0;
-      /* mehrere Ebenen von Schneeflocken für dezenten Effekt */
+      /* mehrere Ebenen von größeren Schneeflocken für einen deutlich sichtbaren Effekt */
       background-image:
-        radial-gradient(2px 2px at 10px 10px, rgba(255,255,255,0.9) 50%, transparent 51%),
-        radial-gradient(2px 2px at 50px 80px, rgba(255,255,255,0.8) 50%, transparent 51%),
-        radial-gradient(3px 3px at 130px 40px, rgba(255,255,255,0.9) 50%, transparent 51%);
-      background-size: 180px 260px, 220px 320px, 260px 360px;
+        radial-gradient(4px 4px at 10px 10px, rgba(255,255,255,0.95) 50%, transparent 52%),
+        radial-gradient(5px 5px at 60px 90px, rgba(255,255,255,0.9) 50%, transparent 52%),
+        radial-gradient(6px 6px at 140px 40px, rgba(255,255,255,0.95) 50%, transparent 52%),
+        radial-gradient(3px 3px at 200px 160px, rgba(255,255,255,0.9) 50%, transparent 52%);
+      background-size: 200px 280px, 240px 340px, 280px 380px, 220px 320px;
       animation: snowDrift 24s linear infinite;
-      opacity: 0.9;
+      opacity: 1;
     }
 
     @keyframes snowDrift {
@@ -417,7 +418,7 @@
    * KONFIGURATION
    ******************************************************/
 
-  const APP_VERSION = "Adventskalender v1.9 – Background Edition";
+  const APP_VERSION = "Adventskalender v2.0 – Background Edition";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
