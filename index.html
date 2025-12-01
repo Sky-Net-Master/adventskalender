@@ -48,12 +48,61 @@
         radial-gradient(circle at top, #e6f0ff, #8fa9ff);
     }
 
+    .snow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .flake {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+      animation-name: snowFall;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+    }
+
+    .flake.f1  { left:  5%; animation-duration: 14s; animation-delay: 0s; }
+    .flake.f2  { left: 15%; animation-duration: 18s; animation-delay: -3s; }
+    .flake.f3  { left: 25%; animation-duration: 16s; animation-delay: -6s; }
+    .flake.f4  { left: 35%; animation-duration: 20s; animation-delay: -9s; }
+    .flake.f5  { left: 45%; animation-duration: 17s; animation-delay: -12s; }
+    .flake.f6  { left: 55%; animation-duration: 19s; animation-delay: -4s; }
+    .flake.f7  { left: 65%; animation-duration: 15s; animation-delay: -8s; }
+    .flake.f8  { left: 75%; animation-duration: 21s; animation-delay: -2s; }
+    .flake.f9  { left: 85%; animation-duration: 18s; animation-delay: -10s; }
+    .flake.f10 { left: 10%; animation-duration: 22s; animation-delay: -5s; }
+    .flake.f11 { left: 50%; animation-duration: 24s; animation-delay: -7s; }
+    .flake.f12 { left: 90%; animation-duration: 20s; animation-delay: -11s; }
+
+    @keyframes snowFall {
+      0% {
+        transform: translate3d(0, -10vh, 0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(0, 110vh, 0);
+        opacity: 0;
+      }
+    }
+
     .app {
       width: min(820px, 92vw);
       background: #ffffffee;
       border-radius: 18px;
       padding: 18px 18px 20px;
       box-shadow: 0 20px 45px rgba(0,0,0,0.18);
+      position: relative;
+      z-index: 1;
     }
 
     header {
@@ -184,6 +233,20 @@
   </style>
 </head>
 <body>
+<div class="snow" aria-hidden="true">
+  <div class="flake f1"></div>
+  <div class="flake f2"></div>
+  <div class="flake f3"></div>
+  <div class="flake f4"></div>
+  <div class="flake f5"></div>
+  <div class="flake f6"></div>
+  <div class="flake f7"></div>
+  <div class="flake f8"></div>
+  <div class="flake f9"></div>
+  <div class="flake f10"></div>
+  <div class="flake f11"></div>
+  <div class="flake f12"></div>
+</div>
 <div class="app">
   <header>
     <h1 id="calendar-title">Adventskalender</h1>
