@@ -237,7 +237,7 @@
       display: none;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at top, rgba(0,0,0,0.7), rgba(0,0,0,0.92));
+      background: radial-gradient(circle at top, rgba(0,0,0,0.55), rgba(0,0,0,0.85));
       z-index: 2;
     }
 
@@ -250,7 +250,13 @@
       text-align: center;
       transform: scale(0.9);
       animation: overlayPop 0.25s ease-out forwards;
+      color: #222;
     }
+
+    .overlay-title span:nth-child(4n+1) { color: #d32f2f; }  /* rot */
+    .overlay-title span:nth-child(4n+2) { color: #2e7d32; }  /* grün */
+    .overlay-title span:nth-child(4n+3) { color: #f9a825; }  /* goldgelb */
+    .overlay-title span:nth-child(4n+4) { color: #795548; }  /* warmes braun */
 
     .overlay-santa {
       font-size: 2.6rem;
@@ -324,13 +330,14 @@
       Kalender zurücksetzen (Test)
     </button>
   </div>
-<\/div>
+  <div class="date-info" id="version-info"></div>
+</div>
 
 <div id="door-overlay" class="overlay" aria-hidden="true">
   <div class="overlay-inner">
     <div class="overlay-santa">🎅🛷</div>
     <div class="overlay-text">
-      <p id="overlay-title">Heute ist dein Advents-Überraschungstag</p>
+      <p id="overlay-title" class="overlay-title">Heute ist dein Advents-Überraschungstag</p>
       <p id="overlay-day"></p>
       <p id="overlay-amount"></p>
     </div>
@@ -342,6 +349,8 @@
   /******************************************************
    * KONFIGURATION
    ******************************************************/
+
+  const APP_VERSION = "Adventskalender v1.2 – 2025-12-01";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
@@ -565,6 +574,18 @@
   const overlayDay = document.getElementById("overlay-day");
   const overlayAmount = document.getElementById("overlay-amount");
   const overlayConfirm = document.getElementById("overlay-confirm");
+  const overlayTitle = document.getElementById("overlay-title");
+
+  function colorizeOverlayTitle() {
+    if (!overlayTitle) return;
+    const text = overlayTitle.textContent || "";
+    overlayTitle.textContent = "";
+    for (const ch of text) {
+      const span = document.createElement("span");
+      span.textContent = ch;
+      overlayTitle.appendChild(span);
+    }
+  }
 
   function showDoorOverlay(dayNumber, amountCents, onConfirm) {
     if (!overlay || !overlayDay || !overlayAmount || !overlayConfirm) {
@@ -666,6 +687,15 @@
 
   (function init() {
     let kal = getQueryParam("kal");
+
+    // Overlay-Titel bunt einfärben
+    colorizeOverlayTitle();
+
+    // Version in der Oberfläche anzeigen
+    const versionInfo = document.getElementById("version-info");
+    if (versionInfo) {
+      versionInfo.textContent = APP_VERSION;
+    }
 
     const title = document.getElementById("calendar-title");
     const subtitle = document.getElementById("calendar-subtitle");
