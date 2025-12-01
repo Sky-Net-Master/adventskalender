@@ -69,7 +69,13 @@
 
     header h1 {
       margin: 0;
-      font-size: clamp(1.4rem, 2.6vw, 1.8rem);
+      font-size: clamp(1.6rem, 3vw, 2.1rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #b71c1c;
+      text-shadow:
+        0 0 6px rgba(255,255,255,0.9),
+        0 0 14px rgba(183,28,28,0.8);
     }
 
     header p {
@@ -116,7 +122,12 @@
       border-radius: 14px;
       overflow: hidden;
       cursor: pointer;
-      background: linear-gradient(135deg, #004e92, #000428);
+      /* weihnachtlicher Look: rot-grüner Verlauf mit leichtem Glanzrahmen */
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.35), rgba(255,255,255,0.0)) border-box,
+        linear-gradient(135deg, #b71c1c, #00695c);
+      background-clip: padding-box, border-box;
+      border: 2px solid rgba(255,255,255,0.7);
       color: #fff;
       box-shadow: 0 6px 14px rgba(0,0,0,0.2);
       transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.15s;
@@ -153,7 +164,12 @@
     }
 
     .door-open {
-      background: linear-gradient(135deg, #0bab64, #3bb78f);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.6), rgba(255,255,255,0.0)) border-box,
+        linear-gradient(135deg, #f9a825, #2e7d32);
+      background-clip: padding-box, border-box;
+      border-color: rgba(255,255,255,0.95);
+      color: #fffde7;
     }
 
     .door-locked {
