@@ -1,4 +1,4 @@
-<!-- Adventskalender v2.6 – Admin & Test Edition -->
+<!-- Adventskalender v2.7 – Admin & Test Edition -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -77,19 +77,19 @@
         box-shadow 0.25s ease;
     }
 
-    /* Modus: Mini (mehr Hintergrund sichtbar) */
-    body.mode-mini .app {
-      transform: translateY(18vh) scale(0.78);
-      background: rgba(255,255,255,0.04);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
-    }
+      /* Modus: Mini (mehr Hintergrund sichtbar) */
+      body.mode-mini .app {
+        transform: translateY(10vh);
+        background: rgba(255,255,255,0.02);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+      }
 
-    /* Modus: Voll (Kalender im Fokus zum Türchen öffnen) */
-    body.mode-full .app {
-      transform: translateY(0) scale(1.0);
-      background: rgba(255,255,255,0.08);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.28);
-    }
+      /* Modus: Voll (Kalender im Fokus zum Türchen öffnen) */
+      body.mode-full .app {
+        transform: translateY(0);
+        background: rgba(255,255,255,0.08);
+        box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+      }
 
     header {
       margin-bottom: 12px;
@@ -210,13 +210,13 @@
       .app {
         width: 82vw;
         padding: 10px 10px 12px;
-      }
-      body.mode-mini .app {
-        transform: translateY(16vh) scale(0.82);
-      }
-      body.mode-full .app {
-        transform: translateY(2vh) scale(0.96);
-      }
+        body.mode-mini .app {
+          transform: translateY(9vh);
+        }
+        body.mode-full .app {
+          transform: translateY(2vh);
+        }
+        
       .door {
         padding-top: 72%;
       }
@@ -387,7 +387,7 @@
     }
 
     .overlay-inner {
-      background: #ffffffee;
+      background: rgba(255,255,255,0.78);
       border-radius: 20px;
       padding: 20px 18px 18px;
       width: min(360px, 88vw);
@@ -505,7 +505,7 @@
    * KONFIGURATION
    ******************************************************/
 
-  const APP_VERSION = "Adventskalender v2.6 – Admin & Test Edition";
+  const APP_VERSION = "SkyNet Adventskalender v2.7 – by OPI-Soft";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
