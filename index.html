@@ -1,4 +1,4 @@
-<!-- Adventskalender v2.9 -->
+<!-- Adventskalender v3.0 -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -473,7 +473,7 @@
         <button id="loot-box" class="loot-box" type="button">
           <span class="loot-icon">💰</span>
           <span class="loot-label">Deine Beute:</span>
-          <span class="loot-amount" id="loot-amount">0,00 €</span>
+          2<span class="loot-amount" id="loot-amount">0,00 €</span>
         </button>
       </div>
     </header>
@@ -499,6 +499,18 @@
   </div>
 </div>
 
+<!-- Usability-Overlay: Erklärung der neuen Bedienung (nur 1x pro Kalender am 05.12.) -->
+<div id="usability-overlay" class="overlay" aria-hidden="true">
+  <div class="overlay-inner">
+    <div class="overlay-santa">💡🎄✨</div>
+    <div class="overlay-text">
+      <p id="usability-title" class="overlay-title">Neu: Dein Weihnachtswunderland-Update</p>
+      <p id="usability-message"></p>
+    </div>
+    <button id="usability-confirm" type="button">Los geht's</button>
+  </div>
+</div>
+
 <!-- Türchen-Overlay -->
 <div id="door-overlay" class="overlay" aria-hidden="true">
   <div class="overlay-inner">
@@ -517,7 +529,7 @@
    * KONFIGURATION
    ******************************************************/
 
-  const APP_VERSION = "SkyNet Adventskalender v2.9 – by OPI-Soft";
+  const APP_VERSION = "SkyNet Adventskalender v3.0 – by OPI-Soft";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
@@ -768,6 +780,76 @@
   const introTitle = document.getElementById("intro-title");
   const introMessage = document.getElementById("intro-message");
   const introConfirm = document.getElementById("intro-confirm");
+
+  const usabilityOverlay = document.getElementById("usability-overlay");
+  const usabilityTitle = document.getElementById("usability-title");
+  const usabilityMessage = document.getElementById("usability-message");
+  const usabilityConfirm = document.getElementById("usability-confirm");
+  function showUsabilityHintIfNeeded(calConfig, data) {
+    if (!usabilityOverlay || !usabilityConfirm || !usabilityMessage) return false;
+
+    const { year, month, day } = getTodayInfo();
+
+    // Nur am 05.12. im Dezember
+    if (!(month === 11 && day === 5)) {
+      return false;
+    }
+
+    // Pro Kalender und Tag nur einmal anzeigen
+    const mm = String(month + 1).padStart(2, "0");
+    const dd = String(day).padStart(2, "0");
+    const usabilityKey = "advent_v1_kal" + calConfig.id + "_usability_" + year + "-" + mm + "-" + dd;
+
+    try {
+      const val = localStorage.getItem(usabilityKey);
+      if (val === "1") {
+        return false;
+      }
+    } catch (e) {
+      console.warn("Fehler beim Lesen usability-Key:", e);
+    }
+
+    if (usabilityTitle) {
+      usabilityTitle.textContent = "Neu: Dein Weihnachtswunderland-Update";
+    }
+
+    usabilityMessage.textContent =
+      "🐳 Ab heute kannst du mit einem Tipp auf den Goldbarren deinen Kalender ein- und ausblenden. 🤩 " +
+      "Nach dem Öffnen eines Türchens rückt das Weihnachtsbild wieder in den Vordergrund. 💫 Bildvorschläge über WahtsApp an Franco 📸";
+
+    // Während des Hinweises Header & Kalender ausblenden
+    document.body.classList.add("state-intro");
+
+    usabilityOverlay.style.display = "flex";
+    usabilityOverlay.setAttribute("aria-hidden", "false");
+
+    usabilityConfirm.onclick = () => {
+      usabilityOverlay.style.display = "none";
+      usabilityOverlay.setAttribute("aria-hidden", "true");
+
+      // Merken, dass der Hinweis heute bereits gezeigt wurde
+      try {
+        localStorage.setItem(usabilityKey, "1");
+      } catch (e) {
+        console.warn("Fehler beim Schreiben usability-Key:", e);
+      }
+
+      // Hinweis-Zustand verlassen und wie gewohnt fortfahren
+      document.body.classList.remove("state-intro");
+
+      // Im Anschluss ganz normal das Intro versuchen
+      const introShown = showIntroIfNeeded(calConfig, data);
+      if (!introShown) {
+        // Falls kein Intro nötig, gleich in den normalen Kalenderzustand wechseln
+        document.body.classList.remove("view-background");
+        document.body.classList.add("view-calendar");
+        document.body.classList.remove("mode-mini");
+        document.body.classList.add("mode-full");
+      }
+    };
+
+    return true;
+  }
 
   function colorizeOverlayTitle() {
     if (!overlayTitle) return;
@@ -1102,15 +1184,20 @@
     const data = loadOrCreateData(calConfig);
     buildCalendar(calConfig, data);
 
-    const introShown = showIntroIfNeeded(calConfig, data);
+    // Zuerst prüfen, ob wir am 05.12. den neuen Usability-Hinweis zeigen sollen
+    const usabilityShown = showUsabilityHintIfNeeded(calConfig, data);
 
-    if (!introShown) {
-      // Kein Intro (z.B. nach dem ersten Aufruf des Tages oder außerhalb der Adventszeit):
-      // Kalender im Fokus und sichtbar starten
-      document.body.classList.remove("view-background");
-      document.body.classList.add("view-calendar");
-      document.body.classList.remove("mode-mini");
-      document.body.classList.add("mode-full");
+    if (!usabilityShown) {
+      const introShown = showIntroIfNeeded(calConfig, data);
+
+      if (!introShown) {
+        // Kein Intro (z.B. nach dem ersten Aufruf des Tages oder außerhalb der Adventszeit):
+        // Kalender im Fokus und sichtbar starten
+        document.body.classList.remove("view-background");
+        document.body.classList.add("view-calendar");
+        document.body.classList.remove("mode-mini");
+        document.body.classList.add("mode-full");
+      }
     }
 
   })();
