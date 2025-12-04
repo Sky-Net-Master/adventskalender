@@ -1,3 +1,4 @@
+<!-- Adventskalender v2.6 – Admin & Test Edition -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -78,8 +79,8 @@
 
     /* Modus: Mini (mehr Hintergrund sichtbar) */
     body.mode-mini .app {
-      transform: translateY(10vh) scale(0.78);
-      background: rgba(255,255,255,0.02);
+      transform: translateY(18vh) scale(0.78);
+      background: rgba(255,255,255,0.04);
       box-shadow: 0 10px 24px rgba(0,0,0,0.22);
     }
 
@@ -112,6 +113,83 @@
       color: #555;
     }
 
+    .loot-container {
+      margin-top: 8px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .loot-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 2px solid #b8860b;
+      background: linear-gradient(145deg, #ffe082, #ffca28);
+      box-shadow:
+        0 0 6px rgba(255,215,0,0.8),
+        0 0 14px rgba(255,255,255,0.5);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #111;
+      cursor: pointer;
+      text-shadow: none;
+      position: relative;
+      overflow: hidden;
+      animation: lootGlow 2.4s ease-in-out infinite;
+    }
+
+    .loot-box span.loot-icon {
+      font-size: 1.1rem;
+    }
+
+    @keyframes lootGlow {
+      0% {
+        box-shadow:
+          0 0 4px rgba(255,215,0,0.6),
+          0 0 10px rgba(255,255,255,0.3);
+      }
+      50% {
+        box-shadow:
+          0 0 10px rgba(255,215,0,1),
+          0 0 20px rgba(255,255,255,0.7);
+      }
+      100% {
+        box-shadow:
+          0 0 4px rgba(255,215,0,0.6),
+          0 0 10px rgba(255,255,255,0.3);
+      }
+    }
+
+    /* Kalender in Mini-Ansicht: Gitter und Datum fast ausgeblendet für mehr Hintergrundfläche */
+    body.mode-mini #calendar-grid {
+      max-height: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+
+    body.mode-full #calendar-grid {
+      max-height: 1200px;
+      opacity: 1;
+      pointer-events: auto;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+
+    body.mode-mini .date-info {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+
+    body.mode-full .date-info {
+      max-height: 40px;
+      opacity: 1;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
@@ -134,7 +212,7 @@
         padding: 10px 10px 12px;
       }
       body.mode-mini .app {
-        transform: translateY(9vh) scale(0.82);
+        transform: translateY(16vh) scale(0.82);
       }
       body.mode-full .app {
         transform: translateY(2vh) scale(0.96);
@@ -380,6 +458,12 @@
   <header>
     <h1 id="calendar-title">Adventskalender</h1>
     <p id="calendar-subtitle"></p>
+    <div class="loot-container">
+      <button id="loot-box" class="loot-box" type="button">
+        <span class="loot-icon">💰</span>
+        <span id="loot-text">Deine Beute: 0,00 €</span>
+      </button>
+    </div>
   </header>
 
   <div class="grid" id="calendar-grid">
@@ -421,7 +505,7 @@
    * KONFIGURATION
    ******************************************************/
 
-  const APP_VERSION = "Adventskalender v2.5 – Admin & Test Edition";
+  const APP_VERSION = "Adventskalender v2.6 – Admin & Test Edition";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
@@ -658,6 +742,7 @@
       console.warn("Fehler beim Schreiben opened:", e);
     }
   }
+
   function adminResetAll() {
     try {
       for (let i = localStorage.length - 1; i >= 0; i--) {
@@ -769,6 +854,19 @@
     const title = document.getElementById("calendar-title");
     const subtitle = document.getElementById("calendar-subtitle");
     const dateInfo = document.getElementById("date-info");
+    const lootBox = document.getElementById("loot-box");
+    const lootText = document.getElementById("loot-text");
+
+    function updateLootDisplay() {
+      if (!lootText) return;
+      let totalCents = 0;
+      for (let i = 0; i < DAYS_TOTAL; i++) {
+        if (data.opened[i]) {
+          totalCents += data.amounts[i];
+        }
+      }
+      lootText.textContent = "Deine Beute: " + formatEuro(totalCents);
+    }
 
     title.textContent = calConfig.name + "s Adventskalender";
 
@@ -842,10 +940,27 @@
           saveOpened(data.keys, data.opened);
           door.classList.add("door-open");
           applyRandomDoorEffect(door);
+          updateLootDisplay();
           document.body.classList.remove("mode-full");
           document.body.classList.add("mode-mini");
         });
       });
+    }
+
+    // Nach dem Aufbau des Kalenders die Beute aktualisieren
+    updateLootDisplay();
+
+    // Schatztruhe: Kalender ein-/ausklappen (Phase 1)
+    if (lootBox) {
+      lootBox.onclick = () => {
+        if (document.body.classList.contains("mode-full")) {
+          document.body.classList.remove("mode-full");
+          document.body.classList.add("mode-mini");
+        } else {
+          document.body.classList.remove("mode-mini");
+          document.body.classList.add("mode-full");
+        }
+      };
     }
   }
 
@@ -859,6 +974,7 @@
       location.reload();
     });
   }
+
   (function init() {
     colorizeOverlayTitle();
 
