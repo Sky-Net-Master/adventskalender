@@ -1,4 +1,4 @@
-<!-- Adventskalender v2.8.1.1 -->
+<!-- Adventskalender v2.9 -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -147,22 +147,36 @@
       }
 
       .loot-box {
-        min-width: 60%;
-        padding: 6px 12px;
-        border-radius: 999px;
-        background: linear-gradient(135deg, #f9a825, #ffeb3b);
-        box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-        border: 1px solid rgba(255,255,255,0.8);
+        position: relative;
+        min-width: 70%;
+        padding: 8px 16px;
+        border-radius: 12px;
+        background: linear-gradient(145deg, #ffecb3, #f9a825 40%, #ffeb3b 60%, #f57f17);
+        box-shadow:
+          0 6px 14px rgba(0,0,0,0.4),
+          inset 0 1px 0 rgba(255,255,255,0.9);
+        border: 1px solid rgba(255,255,255,0.9);
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
+        gap: 8px;
         cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 600;
+        font-size: 0.95rem;
+        font-weight: 700;
         color: #3e2723;
-        text-shadow: 0 0 4px rgba(255,255,255,0.6);
+        text-shadow: 0 0 3px rgba(255,255,255,0.6);
         transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      }
+
+      .loot-box::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.8), transparent 40%, transparent 100%);
+        mix-blend-mode: screen;
+        opacity: 0.9;
+        pointer-events: none;
       }
 
       .loot-box:hover {
@@ -172,10 +186,12 @@
 
       .loot-label {
         opacity: 0.9;
+        font-weight: 600;
       }
 
       .loot-amount {
-        font-size: 1rem;
+        font-size: 1.1rem;
+        font-weight: 800;
       }
 
     .grid {
@@ -497,7 +513,7 @@
    * KONFIGURATION
    ******************************************************/
 
-  const APP_VERSION = "SkyNet Adventskalender v2.8 – by OPI-Soft";
+  const APP_VERSION = "SkyNet Adventskalender v2.9 – by OPI-Soft";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
