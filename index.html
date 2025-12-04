@@ -1,4 +1,4 @@
-<!-- Adventskalender v2.6 -->
+<!-- Adventskalender v2.7 -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -107,11 +107,50 @@
         0 0 14px rgba(183,28,28,0.8);
     }
 
-    header p {
-      margin: 4px 0 0;
-      font-size: 0.9rem;
-      color: #555;
-    }
+      header p {
+        margin: 4px 0 0;
+        font-size: 0.9rem;
+        color: #f5f5f5;
+        text-shadow: 0 0 4px rgba(0,0,0,0.75);
+      }
+      
+      .loot-container {
+        margin-top: 8px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .loot-box {
+        min-width: 60%;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #f9a825, #ffeb3b);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        border: 1px solid rgba(255,255,255,0.8);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #3e2723;
+        text-shadow: 0 0 4px rgba(255,255,255,0.6);
+        transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      }
+
+      .loot-box:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.3);
+      }
+
+      .loot-label {
+        opacity: 0.9;
+      }
+
+      .loot-amount {
+        font-size: 1rem;
+      }
 
     .grid {
       display: grid;
@@ -413,7 +452,7 @@
 <!-- Türchen-Overlay -->
 <div id="door-overlay" class="overlay" aria-hidden="true">
   <div class="overlay-inner">
-    <div class="overlay-santa">🎄🎅🛷🎁💸</div>
+    <div class="overlay-santa">🎄💸🎄🤑🎄💶🎄</div>
     <div class="overlay-text">
       <p id="overlay-title" class="overlay-title">Heute ist dein Advents-Überraschungstag</p>
       <p id="overlay-day"></p>
@@ -428,7 +467,7 @@
    * KONFIGURATION
    ******************************************************/
 
-  const APP_VERSION = "SkyNet Adventskalender v2.6 – by OPI-Soft";
+  const APP_VERSION = "SkyNet Adventskalender v2.7 – by OPI-Soft";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
@@ -769,26 +808,57 @@
    * UI
    ******************************************************/
 
-  function buildCalendar(calConfig, data) {
-    const grid = document.getElementById("calendar-grid");
-    grid.innerHTML = "";
+    function buildCalendar(calConfig, data) {
+      const grid = document.getElementById("calendar-grid");
+      grid.innerHTML = "";
 
-    const title = document.getElementById("calendar-title");
-    const subtitle = document.getElementById("calendar-subtitle");
-    const dateInfo = document.getElementById("date-info");
+      const title = document.getElementById("calendar-title");
+      const subtitle = document.getElementById("calendar-subtitle");
+      const dateInfo = document.getElementById("date-info");
+      const lootBox = document.getElementById("loot-box");
+      const lootAmountEl = document.getElementById("loot-amount");
 
-    title.textContent = calConfig.name + "s Adventskalender";
+      title.textContent = calConfig.name + "s Adventskalender";
 
-    const { year, month, day } = getTodayInfo();
-    dateInfo.textContent =
-      "Heute ist der " +
-      String(day).padStart(2, "0") + "." +
-      String(month + 1).padStart(2, "0") + "." +
-      year;
+      const { year, month, day } = getTodayInfo();
+      dateInfo.textContent =
+        "Heute ist der " +
+        String(day).padStart(2, "0") + "." +
+        String(month + 1).padStart(2, "0") + "." +
+        year;
 
-    subtitle.textContent = "Für " + calConfig.name + " – dein persönlicher Adventskalender.";
+      subtitle.textContent = "Für " + calConfig.name + " – dein persönlicher Adventskalender.";
 
-    const today = { year, month, day };
+      // Beute-Summe berechnen (Summe aller geöffneten Türchen)
+      function updateLootDisplay() {
+        if (!lootAmountEl) return;
+        let totalOpenedCents = 0;
+        for (let d = 1; d <= DAYS_TOTAL; d++) {
+          const idx = d - 1;
+          if (data.opened[idx]) {
+            totalOpenedCents += data.amounts[idx];
+          }
+        }
+        lootAmountEl.textContent = formatEuro(totalOpenedCents);
+      }
+
+      // Initial anzeigen
+      updateLootDisplay();
+
+      // Klick auf die Beute: Kalender ein-/auszoomen
+      if (lootBox) {
+        lootBox.onclick = () => {
+          if (document.body.classList.contains("mode-full")) {
+            document.body.classList.remove("mode-full");
+            document.body.classList.add("mode-mini");
+          } else {
+            document.body.classList.remove("mode-mini");
+            document.body.classList.add("mode-full");
+          }
+        };
+      }
+
+      const today = { year, month, day };
 
     const order = [];
     for (let d = 1; d <= DAYS_TOTAL; d++) {
@@ -849,6 +919,7 @@
           saveOpened(data.keys, data.opened);
           door.classList.add("door-open");
           applyRandomDoorEffect(door);
+          updateLootDisplay();
           document.body.classList.remove("mode-full");
           document.body.classList.add("mode-mini");
         });
@@ -926,7 +997,12 @@
       if (grid) {
         grid.innerHTML = "";
       }
+      const lootContainer = document.querySelector(".loot-container");
+      if (lootContainer) {
+        lootContainer.style.display = "none";
+      }
       return;
+    }
     }
 
     const calConfig = CALENDARS[kal];
