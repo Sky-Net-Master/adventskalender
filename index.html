@@ -1,3 +1,4 @@
+<!-- Adventskalender v2.6 -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -377,10 +378,16 @@
 <div class="snow-layer"></div>
 
 <div class="app">
-  <header>
-    <h1 id="calendar-title">Adventskalender</h1>
-    <p id="calendar-subtitle"></p>
-  </header>
+    <header>
+      <h1 id="calendar-title">Adventskalender</h1>
+      <p id="calendar-subtitle"></p>
+      <div class="loot-container">
+        <button id="loot-box" class="loot-box" type="button">
+          <span class="loot-icon">💰</span>
+          <span id="loot-text">Deine Beute: 0,00 €</span>
+        </button>
+      </div>
+    </header>
 
   <div class="grid" id="calendar-grid">
     <!-- Türen werden durch JS eingefügt -->
@@ -421,7 +428,7 @@
    * KONFIGURATION
    ******************************************************/
 
-  const APP_VERSION = "SkyNet Adventskalender v2.5 – by OPI-Soft";
+  const APP_VERSION = "Adventskalender v2.6 – Admin & Test Edition";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
