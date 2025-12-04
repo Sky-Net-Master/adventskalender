@@ -1,4 +1,4 @@
-<!-- Adventskalender v2.8.1 -->
+<!-- Adventskalender v2.8.1.1 -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -83,6 +83,38 @@
       transform: translateY(0) scale(1.0);
       background: rgba(255,255,255,0.08);
       box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+    }
+
+    /* Zustände: Intro blendet Header & Kalender aus, View-Background blendet nur den Kalender aus */
+    body.state-intro .app header,
+    body.state-intro .app #calendar-grid,
+    body.state-intro .app #date-info,
+    body.state-intro .app #admin-info {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    body.view-background .grid {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.96);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    body.view-background .date-info {
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    body.view-calendar .grid {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1.0);
+    }
+
+    body.view-calendar .date-info {
+      opacity: 1;
     }
 
     header {
@@ -338,20 +370,23 @@
       display: none;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at top, rgba(0,0,0,0.55), rgba(0,0,0,0.85));
+      background: radial-gradient(circle at top, rgba(0,0,0,0.35), rgba(0,0,0,0.7));
       z-index: 2;
     }
 
     .overlay-inner {
-      background: #ffffffee;
+      background: rgba(15, 20, 35, 0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border-radius: 20px;
       padding: 20px 18px 18px;
       width: min(360px, 88vw);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.4);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
       text-align: center;
       transform: scale(0.9);
       animation: overlayPop 0.25s ease-out forwards;
-      color: #222;
+      color: #f5f5f5;
+      border: 1px solid rgba(255,255,255,0.55);
     }
 
     .overlay-title span:nth-child(4n+1) { color: #d32f2f; }
@@ -751,27 +786,48 @@
   }
 
   function showIntroIfNeeded(calConfig, data) {
-    if (!introOverlay || !introConfirm || !introMessage) return;
+    if (!introOverlay || !introConfirm || !introMessage) return false;
 
-    const { month, day } = getTodayInfo();
+    const todayInfo = getTodayInfo();
+    const { year, month, day } = todayInfo;
+
+    // Nur im Advent (1.–24. Dezember)
     if (month !== 11 || day < 1 || day > 24) {
-      return;
+      return false;
+    }
+
+    const todayIndex = day - 1;
+    const alreadyOpened = data.opened && data.opened[todayIndex];
+
+    // Wenn das heutige Türchen bereits geöffnet ist, kein Intro mehr anzeigen
+    if (alreadyOpened) {
+      return false;
+    }
+
+    // Intro nur einmal pro Tag und Kalender anzeigen
+    const mm = String(month + 1).padStart(2, "0");
+    const dd = String(day).padStart(2, "0");
+    const introKey = "advent_v1_kal" + calConfig.id + "_intro_" + year + "-" + mm + "-" + dd;
+
+    try {
+      const val = localStorage.getItem(introKey);
+      if (val === "1") {
+        // Intro für diesen Tag und Kalender wurde bereits angezeigt
+        return false;
+      }
+    } catch (e) {
+      console.warn("Fehler beim Lesen intro-Key:", e);
     }
 
     if (introTitle) {
       introTitle.textContent = calConfig.name + "s Weihnachtswunderland";
     }
 
-    const todayIndex = day - 1;
-    const alreadyOpened = data.opened && data.opened[todayIndex];
+    introMessage.textContent =
+      "Heute wartet Türchen " + day + " auf dich. Such es im Kalender und tippe darauf, um deine Überraschung zu sehen!";
 
-    if (alreadyOpened) {
-      introMessage.textContent =
-        "Das Türchen " + day + " ist heute schon geplündert – aber du kannst natürlich weiterstöbern.";
-    } else {
-      introMessage.textContent =
-        "Heute wartet Türchen " + day + " auf dich. Such es im Kalender und tippe darauf, um deine Überraschung zu sehen!";
-    }
+    // Während des Intros Header & Kalender ausblenden
+    document.body.classList.add("state-intro");
 
     introOverlay.style.display = "flex";
     introOverlay.setAttribute("aria-hidden", "false");
@@ -779,14 +835,45 @@
     introConfirm.onclick = () => {
       introOverlay.style.display = "none";
       introOverlay.setAttribute("aria-hidden", "true");
+
+      // Merken, dass das Intro heute bereits gezeigt wurde
+      try {
+        localStorage.setItem(introKey, "1");
+      } catch (e) {
+        console.warn("Fehler beim Schreiben intro-Key:", e);
+      }
+
+      // Intro-Zustand verlassen, Kalender sichtbar machen und Misch-Animation starten
+      document.body.classList.remove("state-intro");
+      document.body.classList.remove("view-background");
+      document.body.classList.add("view-calendar");
       document.body.classList.remove("mode-mini");
       document.body.classList.add("mode-full");
+
+      mixCalendar(calConfig, data, 3);
     };
+
+    return true;
   }
 
   /******************************************************
    * UI
    ******************************************************/
+
+  function mixCalendar(calConfig, data, times = 3) {
+    let count = 0;
+    function step() {
+      buildCalendar(calConfig, data);
+      document.body.classList.remove("view-background");
+      document.body.classList.add("view-calendar");
+      count++;
+      if (count < times) {
+        setTimeout(step, 220);
+      }
+    }
+    // leichter Delay, damit das Intro-Ausblenden optisch sauber ist
+    setTimeout(step, 280);
+  }
 
     function buildCalendar(calConfig, data) {
       const grid = document.getElementById("calendar-grid");
@@ -825,15 +912,15 @@
       // Initial anzeigen
       updateLootDisplay();
 
-      // Klick auf die Beute: Kalender ein-/auszoomen
+      // Klick auf die Beute: Kalender ein-/ausblenden (Hintergrund vs. Kalender-Ansicht)
       if (lootBox) {
         lootBox.onclick = () => {
-          if (document.body.classList.contains("mode-full")) {
-            document.body.classList.remove("mode-full");
-            document.body.classList.add("mode-mini");
+          if (document.body.classList.contains("view-calendar")) {
+            document.body.classList.remove("view-calendar");
+            document.body.classList.add("view-background");
           } else {
-            document.body.classList.remove("mode-mini");
-            document.body.classList.add("mode-full");
+            document.body.classList.remove("view-background");
+            document.body.classList.add("view-calendar");
           }
         };
       }
@@ -900,8 +987,11 @@
           door.classList.add("door-open");
           applyRandomDoorEffect(door);
           updateLootDisplay();
+          // Nach dem Öffnen etwas zurücktreten: Kalender in den Mini-Modus und Hintergrund-Ansicht
           document.body.classList.remove("mode-full");
           document.body.classList.add("mode-mini");
+          document.body.classList.remove("view-calendar");
+          document.body.classList.add("view-background");
         });
       });
     }
@@ -921,6 +1011,7 @@
     colorizeOverlayTitle();
 
     document.body.classList.add("mode-mini");
+    document.body.classList.add("view-background");
 
     const versionInfo = document.getElementById("version-info");
     if (versionInfo) {
@@ -991,7 +1082,16 @@
     const data = loadOrCreateData(calConfig);
     buildCalendar(calConfig, data);
 
-    showIntroIfNeeded(calConfig, data);
+    const introShown = showIntroIfNeeded(calConfig, data);
+
+    if (!introShown) {
+      // Kein Intro (z.B. nach dem ersten Aufruf des Tages oder außerhalb der Adventszeit):
+      // Kalender im Fokus und sichtbar starten
+      document.body.classList.remove("view-background");
+      document.body.classList.add("view-calendar");
+      document.body.classList.remove("mode-mini");
+      document.body.classList.add("mode-full");
+    }
 
   })();
 </script>
