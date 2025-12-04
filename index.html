@@ -1,4 +1,4 @@
-<!-- Adventskalender v3.0 -->
+<!-- Adventskalender v2.9 -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -71,6 +71,12 @@
         box-shadow 0.25s ease;
     }
 
+    .calendar-wrapper {
+      margin-top: 8px;
+      transition: opacity 0.25s ease, max-height 0.3s ease, transform 0.25s ease;
+      max-height: 1200px; /* ausreichend Platz für den gesamten Kalender */
+    }
+
     /* Modus: Mini (mehr Hintergrund sichtbar) */
     body.mode-mini .app {
       transform: translateY(10vh) scale(0.78);
@@ -85,40 +91,29 @@
       box-shadow: 0 18px 40px rgba(0,0,0,0.28);
     }
 
-    /* Zustände: Intro blendet Header & Kalender aus, View-Background blendet nur den Kalender aus */
+    /* Zustände: Intro blendet Header & Kalender aus, View-Background blendet nur den Kalenderkörper aus */
     body.state-intro .app header,
-    body.state-intro .app #calendar-grid,
-    body.state-intro .app #date-info,
+    body.state-intro .app #calendar-wrapper,
+    body.state-intro .app #version-info,
     body.state-intro .app #admin-info {
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease;
     }
 
-    body.view-background .grid {
+    body.view-background #calendar-wrapper {
       opacity: 0;
       pointer-events: none;
       transform: scale(0.96);
-      transition: opacity 0.25s ease, transform 0.25s ease;
+      max-height: 0;
+      overflow: hidden;
     }
 
-    body.view-background .date-info {
-      opacity: 0;
-      transition: opacity 0.25s ease;
-    }
-    body.view-background #admin-info {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    body.view-calendar .grid {
+    body.view-calendar #calendar-wrapper {
       opacity: 1;
       pointer-events: auto;
       transform: scale(1.0);
-    }
-
-    body.view-calendar .date-info {
-      opacity: 1;
+      max-height: 1200px;
     }
 
     header {
@@ -473,16 +468,19 @@
         <button id="loot-box" class="loot-box" type="button">
           <span class="loot-icon">💰</span>
           <span class="loot-label">Deine Beute:</span>
-          2<span class="loot-amount" id="loot-amount">0,00 €</span>
+          <span class="loot-amount" id="loot-amount">0,00 €</span>
         </button>
       </div>
     </header>
 
-  <div class="grid" id="calendar-grid">
-    <!-- Türen werden durch JS eingefügt -->
-  </div>
+</header>
 
-  <div class="date-info" id="date-info"></div>
+  <div id="calendar-wrapper" class="calendar-wrapper">
+    <div class="grid" id="calendar-grid">
+      <!-- Türen werden durch JS eingefügt -->
+    </div>
+    <div class="date-info" id="date-info"></div>
+  </div>
   <div class="date-info" id="version-info"></div>
   <div class="date-info" id="admin-info"></div>
 </div>
@@ -529,7 +527,7 @@
    * KONFIGURATION
    ******************************************************/
 
-  const APP_VERSION = "SkyNet Adventskalender v3.0 – by OPI-Soft";
+  const APP_VERSION = "SkyNet Adventskalender v2.9 – by OPI-Soft";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
@@ -815,7 +813,7 @@
 
     usabilityMessage.textContent =
       "🐳 Ab heute kannst du mit einem Tipp auf den Goldbarren deinen Kalender ein- und ausblenden. 🤩 " +
-      "Nach dem Öffnen eines Türchens rückt das Weihnachtsbild wieder in den Vordergrund. 💫 Bildvorschläge über WahtsApp an Franco 📸";
+      "Nach dem Öffnen eines Türchens rückt das Weihnachtsbild wieder in den Vordergrund.            📸 Bildvorschläge über WahtsApp an Franco 💫 ";
 
     // Während des Hinweises Header & Kalender ausblenden
     document.body.classList.add("state-intro");
