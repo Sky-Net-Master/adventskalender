@@ -1,4 +1,4 @@
-<!-- Adventskalender v2.7 -->
+<!-- Adventskalender v2.8 -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -52,12 +52,6 @@
       }
     }
 
-    /* Drei Themes teilen sich dasselbe Bild, falls später gewünscht, können hier eigene Bilder gesetzt werden */
-    body.theme-1,
-    body.theme-2,
-    body.theme-3 {
-      background: #041624 url("background.png") center top / cover no-repeat fixed;
-    }
 
     .app {
       width: min(680px, 84vw);
@@ -468,7 +462,7 @@
    * KONFIGURATION
    ******************************************************/
 
-  const APP_VERSION = "SkyNet Adventskalender v2.7 – by OPI-Soft";
+  const APP_VERSION = "SkyNet Adventskalender v2.8 – by OPI-Soft";
 
   const UNIT_CENTS = 50; // 0,50 € pro Einheit
 
@@ -493,13 +487,6 @@
       totalEuro: 30.0,
       day6RangeEuro: { min: 3.0, max: 4.5 },
       day24RangeEuro: { min: 7.0, max: 10.0 }
-    },
-    "4": {
-      id: "4",
-      name: "Hugo",
-      totalEuro: 30.0,
-      day6RangeEuro: { min: 3.0, max: 4.5 },
-      day24RangeEuro: { min: 7.0, max: 10.0 }
     }
   };
 
@@ -516,7 +503,6 @@
     return url.searchParams.get(name);
   }
 
-  const TEST_MODE  = getQueryParam("test") === "1";
   const ADMIN_MODE = getQueryParam("admin") === "1";
 
   function formatEuro(cents) {
@@ -646,51 +632,45 @@
     let amounts = null;
     let opened = null;
 
-    if (!TEST_MODE) {
-      try {
-        const a = localStorage.getItem(keys.amounts);
-        if (a) {
-          const parsed = JSON.parse(a);
-          if (Array.isArray(parsed) && parsed.length === DAYS_TOTAL) {
-            amounts = parsed;
-          }
+    try {
+      const a = localStorage.getItem(keys.amounts);
+      if (a) {
+        const parsed = JSON.parse(a);
+        if (Array.isArray(parsed) && parsed.length === DAYS_TOTAL) {
+          amounts = parsed;
         }
-      } catch (e) {
-        console.warn("Fehler beim Lesen amounts:", e);
       }
+    } catch (e) {
+      console.warn("Fehler beim Lesen amounts:", e);
+    }
 
-      try {
-        const o = localStorage.getItem(keys.opened);
-        if (o) {
-          const parsed = JSON.parse(o);
-          if (Array.isArray(parsed) && parsed.length === DAYS_TOTAL) {
-            opened = parsed.map(Boolean);
-          }
+    try {
+      const o = localStorage.getItem(keys.opened);
+      if (o) {
+        const parsed = JSON.parse(o);
+        if (Array.isArray(parsed) && parsed.length === DAYS_TOTAL) {
+          opened = parsed.map(Boolean);
         }
-      } catch (e) {
-        console.warn("Fehler beim Lesen opened:", e);
       }
+    } catch (e) {
+      console.warn("Fehler beim Lesen opened:", e);
     }
 
     if (!amounts) {
       amounts = generateAmountsForCalendar(calConfig);
-      if (!TEST_MODE) {
-        try {
-          localStorage.setItem(keys.amounts, JSON.stringify(amounts));
-        } catch (e) {
-          console.warn("Fehler beim Schreiben amounts:", e);
-        }
+      try {
+        localStorage.setItem(keys.amounts, JSON.stringify(amounts));
+      } catch (e) {
+        console.warn("Fehler beim Schreiben amounts:", e);
       }
     }
 
     if (!opened) {
       opened = new Array(DAYS_TOTAL).fill(false);
-      if (!TEST_MODE) {
-        try {
-          localStorage.setItem(keys.opened, JSON.stringify(opened));
-        } catch (e) {
-          console.warn("Fehler beim Schreiben opened:", e);
-        }
+      try {
+        localStorage.setItem(keys.opened, JSON.stringify(opened));
+      } catch (e) {
+        console.warn("Fehler beim Schreiben opened:", e);
       }
     }
 
@@ -698,7 +678,6 @@
   }
 
   function saveOpened(keys, opened) {
-    if (TEST_MODE) return;
     try {
       localStorage.setItem(keys.opened, JSON.stringify(opened));
     } catch (e) {
@@ -945,7 +924,7 @@
 
     const versionInfo = document.getElementById("version-info");
     if (versionInfo) {
-      versionInfo.textContent = APP_VERSION + (TEST_MODE ? " – TESTMODUS (keine echten Daten)" : "");
+      versionInfo.textContent = APP_VERSION;
     }
 
     const adminInfo = document.getElementById("admin-info");
@@ -986,7 +965,7 @@
         title.textContent = "Adventskalender";
       }
       if (subtitle) {
-        subtitle.textContent = "Diese Seite ist gesperrt. Bitte nutze deinen persönlichen Link für Gloria, Larissa, Vanessa oder Hugo.";
+        subtitle.textContent = "Diese Seite ist gesperrt. Bitte nutze deinen persönlichen Link für Gloria, Larissa oder Vanessa.";
       }
       if (dateInfo) {
         dateInfo.textContent =
